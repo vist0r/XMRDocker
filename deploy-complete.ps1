@@ -120,20 +120,8 @@ Write-Host "使用钱包地址: $($WalletAddress.Substring(0,20))..." -Foregroun
 Write-Host "工作者名称: $WorkerName" -ForegroundColor Green
 Write-Host "矿池地址: $PoolUrl" -ForegroundColor Green
 
-# 第三步：登录Docker Hub
-Write-Host "--- 第3步：登录 Docker Hub ---" -ForegroundColor Cyan
-Write-Host "需要登录以拉取私有镜像..." -ForegroundColor Yellow
-docker login
-
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Docker Hub 登录失败！" -ForegroundColor Red
-    exit 1
-}
-
-Write-Host "✅ Docker Hub 登录成功" -ForegroundColor Green
-
-# 第四步：创建配置文件
-Write-Host "--- 第4步：创建配置文件 ---" -ForegroundColor Cyan
+# 第三步：创建配置文件
+Write-Host "--- 第3步：创建配置文件 ---" -ForegroundColor Cyan
 
 $configDir = ".\config"
 if (-not (Test-Path $configDir)) {
@@ -205,21 +193,21 @@ $configContent = @"
 $configContent | Out-File -FilePath $configFile -Encoding UTF8 -Force
 Write-Host "✅ 配置文件创建: $configFile" -ForegroundColor Green
 
-# 第五步：拉取镜像
-Write-Host "--- 第5步：拉取挖矿镜像 ---" -ForegroundColor Cyan
-Write-Host "正在拉取私有镜像..." -ForegroundColor Yellow
+# 第四步：拉取镜像
+Write-Host "--- 第4步：拉取挖矿镜像 ---" -ForegroundColor Cyan
+Write-Host "正在拉取公有镜像..." -ForegroundColor Yellow
 
-docker pull vist0r/private-cpuminer:latest
+docker pull xmrig/xmrig:latest
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ 镜像拉取失败！请检查网络连接和登录状态" -ForegroundColor Red
+    Write-Host "❌ 镜像拉取失败！请检查网络连接" -ForegroundColor Red
     exit 1
 }
 
 Write-Host "✅ 镜像拉取成功" -ForegroundColor Green
 
-# 第六步：启动容器
-Write-Host "--- 第6步：启动挖矿容器 ---" -ForegroundColor Cyan
+# 第五步：启动容器
+Write-Host "--- 第5步：启动挖矿容器 ---" -ForegroundColor Cyan
 
 # 清理旧容器
 Write-Host "清理旧容器..." -ForegroundColor Yellow
@@ -227,7 +215,7 @@ docker rm -f cpu-miner 2>$null
 
 Write-Host "启动新容器..." -ForegroundColor Yellow
 docker run --name cpu-miner `
-    -v "${PWD}/config:/app/config" `
+    -v "${PWD}/config:/config" `
     --restart unless-stopped `
     --privileged `
     --memory=16g `
@@ -240,8 +228,8 @@ docker run --name cpu-miner `
     -e "MALLOC_TRIM_THRESHOLD_=131072" `
     -e "MALLOC_TOP_PAD_=131072" `
     -d `
-    vist0r/private-cpuminer:latest `
-    cpuminer --config=/app/config/config.json
+    xmrig/xmrig:latest `
+    --config=/config/config.json
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "✅ 挖矿容器启动成功！" -ForegroundColor Green

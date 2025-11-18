@@ -36,17 +36,8 @@ if (-not $WalletAddress) {
 Write-Host "钱包地址: $($WalletAddress.Substring(0,10))...✓" -ForegroundColor Green
 Write-Host "工作者: $WorkerName" -ForegroundColor Green
 
-# Docker Hub登录
-Write-Host ""
-Write-Host "登录Docker Hub拉取私有镜像..." -ForegroundColor Yellow
-docker login
-
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ 登录失败！" -ForegroundColor Red
-    exit 1
-}
-
 # 创建配置
+Write-Host ""
 Write-Host "创建配置文件..." -ForegroundColor Yellow
 $configDir = "config"
 New-Item -ItemType Directory -Path $configDir -Force | Out-Null
@@ -78,21 +69,21 @@ New-Item -ItemType Directory -Path $configDir -Force | Out-Null
 "@ | Out-File -FilePath "$configDir/config.json" -Encoding UTF8
 
 # 拉取并运行
-Write-Host "拉取镜像..." -ForegroundColor Yellow
-docker pull vist0r/private-cpuminer:latest
+Write-Host "拉取公有镜像..." -ForegroundColor Yellow
+docker pull xmrig/xmrig:latest
 
 Write-Host "启动挖矿..." -ForegroundColor Yellow
 docker rm -f cpu-miner 2>$null
 
 docker run --name cpu-miner `
-    -v "${PWD}/config:/app/config" `
+    -v "${PWD}/config:/config" `
     --restart unless-stopped `
     --privileged `
     --memory=8g `
     --shm-size=4g `
     -d `
-    vist0r/private-cpuminer:latest `
-    cpuminer --config=/app/config/config.json
+    xmrig/xmrig:latest `
+    --config=/config/config.json
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host ""
