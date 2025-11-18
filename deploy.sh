@@ -94,10 +94,10 @@ echo -e "${GREEN}钱包地址: ${WALLET_ADDRESS:0:10}...✓${NC}"
 echo -e "${GREEN}工作者: $WORKER_NAME${NC}"
 echo -e "${GREEN}矿池: $POOL_URL${NC}"
 
-# Docker Hub登录
-echo ""
-echo -e "${YELLOW}登录Docker Hub拉取私有镜像...${NC}"
-docker login
+# Docker Hub登录 (如果需要私有镜像)
+# echo ""
+# echo -e "${YELLOW}登录Docker Hub拉取私有镜像...${NC}"
+# docker login
 
 # 创建配置文件
 echo -e "${YELLOW}创建配置文件...${NC}"
